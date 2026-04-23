@@ -1,0 +1,329 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.0.3, pluggy-1.6.0 -- /home/ubuntu/miniconda3/envs/neo/bin/python3.10
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/NEO
+plugins: anyio-4.13.0
+collecting ... collected 15 items
+
+tests/test_int8_transfer.py::test_quantize_dtype_and_shape PASSED        [  6%]
+tests/test_int8_transfer.py::test_dequantize_rejects_non_int8 PASSED     [ 13%]
+tests/test_int8_transfer.py::test_quantize_rejects_non_float PASSED      [ 20%]
+tests/test_int8_transfer.py::test_roundtrip_bounded_error[per-token] PASSED [ 26%]
+tests/test_int8_transfer.py::test_roundtrip_bounded_error[per-channel] PASSED [ 33%]
+tests/test_int8_transfer.py::test_roundtrip_bounded_error[per-token-per-head] PASSED [ 40%]
+tests/test_int8_transfer.py::test_per_token_rms_bound FAILED             [ 46%]
+tests/test_int8_transfer.py::test_zero_input_roundtrips_to_zero PASSED   [ 53%]
+tests/test_int8_transfer.py::test_scale_broadcasts_cleanly PASSED        [ 60%]
+tests/test_int8_transfer.py::test_granularities_all_within_spec PASSED   [ 66%]
+tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-token] FAILED [ 73%]
+tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-channel] FAILED [ 80%]
+tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-token-per-head] FAILED [ 86%]
+tests/test_int8_correctness.py::test_quantize_dequantize_zero_block PASSED [ 93%]
+tests/test_int8_correctness.py::test_logit_mse_fp16_vs_int8 FAILED       [100%]
+
+=================================== FAILURES ===================================
+___________________________ test_per_token_rms_bound ___________________________
+
+    def test_per_token_rms_bound():
+        """per-token granularity should give tighter rms error than per-channel
+        on our synthetic block (tokens have varied dynamic range)."""
+        x = _random_block(seed=7)
+        y = roundtrip_int8(x, granularity=QuantGranularity.PER_TOKEN)
+        rel = ((y.to(torch.float32) - x.to(torch.float32)) / (x.to(torch.float32).abs() + 1e-6))
+        rms_rel = math.sqrt((rel * rel).mean().item())
+>       assert rms_rel < 5e-3, f"per-token rms_rel={rms_rel}"
+E       AssertionError: per-token rms_rel=0.11510298398936458
+E       assert 0.11510298398936458 < 0.005
+
+tests/test_int8_transfer.py:102: AssertionError
+__________________ test_quantize_dequantize_tight[per-token] ___________________
+
+granularity = <QuantGranularity.PER_TOKEN: 'per-token'>
+
+    @pytest.mark.parametrize("granularity", list(QuantGranularity))
+    def test_quantize_dequantize_tight(granularity: QuantGranularity):
+        """
+        Round-trip error on a KV-shaped block stays well under the 1e-3 MSE
+        bar used end-to-end. This is the component-level canary for M6 —
+        if it fires, the integration test has no hope.
+        """
+        x = _kv_shaped_block(seed=42)
+        y = roundtrip_int8(x, granularity=granularity)
+    
+        assert y.shape == x.shape
+        assert y.dtype == x.dtype
+        assert not torch.isnan(y).any(), "round-trip produced NaN"
+    
+        mse = torch.mean((y.to(torch.float32) - x.to(torch.float32)) ** 2).item()
+        # Component bar is tighter than end-to-end — round-trip on a single
+        # block should be ~1e-5, orders of magnitude below the logit bar.
+>       assert mse < 1e-4, (
+            f"round-trip MSE {mse:.2e} exceeds component bar (granularity="
+            f"{granularity.value})"
+        )
+E       AssertionError: round-trip MSE 1.83e-04 exceeds component bar (granularity=per-token)
+E       assert 0.00018343536066822708 < 0.0001
+
+tests/test_int8_correctness.py:110: AssertionError
+_________________ test_quantize_dequantize_tight[per-channel] __________________
+
+granularity = <QuantGranularity.PER_CHANNEL: 'per-channel'>
+
+    @pytest.mark.parametrize("granularity", list(QuantGranularity))
+    def test_quantize_dequantize_tight(granularity: QuantGranularity):
+        """
+        Round-trip error on a KV-shaped block stays well under the 1e-3 MSE
+        bar used end-to-end. This is the component-level canary for M6 —
+        if it fires, the integration test has no hope.
+        """
+        x = _kv_shaped_block(seed=42)
+        y = roundtrip_int8(x, granularity=granularity)
+    
+        assert y.shape == x.shape
+        assert y.dtype == x.dtype
+        assert not torch.isnan(y).any(), "round-trip produced NaN"
+    
+        mse = torch.mean((y.to(torch.float32) - x.to(torch.float32)) ** 2).item()
+        # Component bar is tighter than end-to-end — round-trip on a single
+        # block should be ~1e-5, orders of magnitude below the logit bar.
+>       assert mse < 1e-4, (
+            f"round-trip MSE {mse:.2e} exceeds component bar (granularity="
+            f"{granularity.value})"
+        )
+E       AssertionError: round-trip MSE 2.29e-04 exceeds component bar (granularity=per-channel)
+E       assert 0.0002288136020069942 < 0.0001
+
+tests/test_int8_correctness.py:110: AssertionError
+______________ test_quantize_dequantize_tight[per-token-per-head] ______________
+
+granularity = <QuantGranularity.PER_TOKEN_PER_HEAD: 'per-token-per-head'>
+
+    @pytest.mark.parametrize("granularity", list(QuantGranularity))
+    def test_quantize_dequantize_tight(granularity: QuantGranularity):
+        """
+        Round-trip error on a KV-shaped block stays well under the 1e-3 MSE
+        bar used end-to-end. This is the component-level canary for M6 —
+        if it fires, the integration test has no hope.
+        """
+        x = _kv_shaped_block(seed=42)
+        y = roundtrip_int8(x, granularity=granularity)
+    
+        assert y.shape == x.shape
+        assert y.dtype == x.dtype
+        assert not torch.isnan(y).any(), "round-trip produced NaN"
+    
+        mse = torch.mean((y.to(torch.float32) - x.to(torch.float32)) ** 2).item()
+        # Component bar is tighter than end-to-end — round-trip on a single
+        # block should be ~1e-5, orders of magnitude below the logit bar.
+>       assert mse < 1e-4, (
+            f"round-trip MSE {mse:.2e} exceeds component bar (granularity="
+            f"{granularity.value})"
+        )
+E       AssertionError: round-trip MSE 1.83e-04 exceeds component bar (granularity=per-token-per-head)
+E       assert 0.00018343536066822708 < 0.0001
+
+tests/test_int8_correctness.py:110: AssertionError
+_________________________ test_logit_mse_fp16_vs_int8 __________________________
+
+    @pytest.mark.skipif(
+        not _cuda_and_hf_available(),
+        reason="requires CUDA + transformers (integration arm)",
+    )
+    def test_logit_mse_fp16_vs_int8():
+        """
+        Logit MSE bar from docs/int8-design.md §7: the FP16 and INT8-
+        quantized KV paths must agree to MSE < 1e-3 on the 10 fixed
+        prompts.
+    
+        We measure this at the quantization-math level, not through NEO's
+        engine: a single forward window wouldn't trigger KV offload, so
+        --int8-cpu-kv would be a no-op and the test would be vacuous.
+        Instead we reuse the same forward hooks the perplexity harness
+        uses (benchmarks/_quant_hooks.install_kv_quant_hooks), which
+        dispatch through the exact same quantize.roundtrip_int8 function
+        block_swapper._swap_blocks_int8_cpu_kv uses. If this passes, the
+        quantization math meets the bar; if it fails, the rest of M6 is
+        moot.
+        """
+        model_path = _resolve_model_path()
+        if model_path is None:
+            pytest.skip("no model checkpoint available for integration test")
+    
+        try:
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+        except Exception as e:  # pragma: no cover — environment-dependent
+            pytest.skip(f"transformers import failed: {e!r}")
+    
+        # Import the hooks lazily — keeps this file collectable on a laptop
+        # even if the benchmarks package path isn't on sys.path at import time.
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benchmarks"))
+        from _quant_hooks import install_kv_quant_hooks, remove_kv_quant_hooks
+        from swiftllm.worker.quantize import QuantGranularity
+    
+        tok = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path, torch_dtype=torch.float16, device_map="cuda"
+        ).eval()
+        head_dim = getattr(
+            model.config, "head_dim",
+            model.config.hidden_size // model.config.num_attention_heads,
+        )
+    
+        # Tokenize once; pad to matching lengths so we can compare per-prompt
+        # last-token logits directly without gathering per-prompt lengths.
+>       enc = tok(list(FIXED_PROMPTS), return_tensors="pt", padding=True)
+
+tests/test_int8_correctness.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../miniconda3/envs/neo/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:3055: in __call__
+    encodings = self._call_one(text=text, text_pair=text_pair, **all_kwargs)
+../miniconda3/envs/neo/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:3142: in _call_one
+    return self.batch_encode_plus(
+../miniconda3/envs/neo/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:3329: in batch_encode_plus
+    padding_strategy, truncation_strategy, max_length, kwargs = self._get_padding_truncation_strategies(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = LlamaTokenizerFast(name_or_path='/home/ubuntu/weights/Llama-2-7b-hf', vocab_size=32000, model_max_length=1000000000000...special=True),
+	2: AddedToken("</s>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+}
+padding = True, truncation = None, max_length = None, pad_to_multiple_of = None
+verbose = True, kwargs = {}, old_truncation_strategy = 'do_not_truncate'
+old_pad_to_max_length = False
+padding_strategy = <PaddingStrategy.LONGEST: 'longest'>
+truncation_strategy = <TruncationStrategy.DO_NOT_TRUNCATE: 'do_not_truncate'>
+
+    def _get_padding_truncation_strategies(
+        self, padding=False, truncation=None, max_length=None, pad_to_multiple_of=None, verbose=True, **kwargs
+    ):
+        """
+        Find the correct padding/truncation strategy with backward compatibility for old arguments (truncation_strategy
+        and pad_to_max_length) and behaviors.
+        """
+        old_truncation_strategy = kwargs.pop("truncation_strategy", "do_not_truncate")
+        old_pad_to_max_length = kwargs.pop("pad_to_max_length", False)
+    
+        # Backward compatibility for previous behavior, maybe we should deprecate it:
+        # If you only set max_length, it activates truncation for max_length
+        if max_length is not None and padding is False and truncation is None:
+            if verbose:
+                if not self.deprecation_warnings.get("Truncation-not-explicitly-activated", False):
+                    logger.warning(
+                        "Truncation was not explicitly activated but `max_length` is provided a specific value, please"
+                        " use `truncation=True` to explicitly truncate examples to max length. Defaulting to"
+                        " 'longest_first' truncation strategy. If you encode pairs of sequences (GLUE-style) with the"
+                        " tokenizer you can select this strategy more precisely by providing a specific strategy to"
+                        " `truncation`."
+                    )
+                self.deprecation_warnings["Truncation-not-explicitly-activated"] = True
+            truncation = "longest_first"
+    
+        # Get padding strategy
+        if padding is False and old_pad_to_max_length:
+            if verbose:
+                warnings.warn(
+                    "The `pad_to_max_length` argument is deprecated and will be removed in a future version, "
+                    "use `padding=True` or `padding='longest'` to pad to the longest sequence in the batch, or "
+                    "use `padding='max_length'` to pad to a max length. In this case, you can give a specific "
+                    "length with `max_length` (e.g. `max_length=45`) or leave max_length to None to pad to the "
+                    "maximal input size of the model (e.g. 512 for Bert).",
+                    FutureWarning,
+                )
+            if max_length is None:
+                padding_strategy = PaddingStrategy.LONGEST
+            else:
+                padding_strategy = PaddingStrategy.MAX_LENGTH
+        elif padding is not False:
+            if padding is True:
+                if verbose:
+                    if max_length is not None and (
+                        truncation is None or truncation is False or truncation == "do_not_truncate"
+                    ):
+                        warnings.warn(
+                            "`max_length` is ignored when `padding`=`True` and there is no truncation strategy. "
+                            "To pad to max length, use `padding='max_length'`."
+                        )
+                    if old_pad_to_max_length is not False:
+                        warnings.warn("Though `pad_to_max_length` = `True`, it is ignored because `padding`=`True`.")
+                padding_strategy = PaddingStrategy.LONGEST  # Default to pad to the longest sequence in the batch
+            elif not isinstance(padding, PaddingStrategy):
+                padding_strategy = PaddingStrategy(padding)
+            elif isinstance(padding, PaddingStrategy):
+                padding_strategy = padding
+        else:
+            padding_strategy = PaddingStrategy.DO_NOT_PAD
+    
+        # Get truncation strategy
+        if truncation is None and old_truncation_strategy != "do_not_truncate":
+            if verbose:
+                warnings.warn(
+                    "The `truncation_strategy` argument is deprecated and will be removed in a future version, use"
+                    " `truncation=True` to truncate examples to a max length. You can give a specific length with"
+                    " `max_length` (e.g. `max_length=45`) or leave max_length to None to truncate to the maximal input"
+                    " size of the model (e.g. 512 for Bert).  If you have pairs of inputs, you can give a specific"
+                    " truncation strategy selected among `truncation='only_first'` (will only truncate the first"
+                    " sentence in the pairs) `truncation='only_second'` (will only truncate the second sentence in the"
+                    " pairs) or `truncation='longest_first'` (will iteratively remove tokens from the longest sentence"
+                    " in the pairs).",
+                    FutureWarning,
+                )
+            truncation_strategy = TruncationStrategy(old_truncation_strategy)
+        elif truncation is not False and truncation is not None:
+            if truncation is True:
+                truncation_strategy = (
+                    TruncationStrategy.LONGEST_FIRST
+                )  # Default to truncate the longest sequences in pairs of inputs
+            elif not isinstance(truncation, TruncationStrategy):
+                truncation_strategy = TruncationStrategy(truncation)
+            elif isinstance(truncation, TruncationStrategy):
+                truncation_strategy = truncation
+        else:
+            truncation_strategy = TruncationStrategy.DO_NOT_TRUNCATE
+    
+        # Set max length if needed
+        if max_length is None:
+            if padding_strategy == PaddingStrategy.MAX_LENGTH:
+                if self.model_max_length > LARGE_INTEGER:
+                    if verbose:
+                        if not self.deprecation_warnings.get("Asking-to-pad-to-max_length", False):
+                            logger.warning(
+                                "Asking to pad to max_length but no maximum length is provided and the model has no"
+                                " predefined maximum length. Default to no padding."
+                            )
+                        self.deprecation_warnings["Asking-to-pad-to-max_length"] = True
+                    padding_strategy = PaddingStrategy.DO_NOT_PAD
+                else:
+                    max_length = self.model_max_length
+    
+            if truncation_strategy != TruncationStrategy.DO_NOT_TRUNCATE:
+                if self.model_max_length > LARGE_INTEGER:
+                    if verbose:
+                        if not self.deprecation_warnings.get("Asking-to-truncate-to-max_length", False):
+                            logger.warning(
+                                "Asking to truncate to max_length but no maximum length is provided and the model has"
+                                " no predefined maximum length. Default to no truncation."
+                            )
+                        self.deprecation_warnings["Asking-to-truncate-to-max_length"] = True
+                    truncation_strategy = TruncationStrategy.DO_NOT_TRUNCATE
+                else:
+                    max_length = self.model_max_length
+    
+        # Test if we have a padding token
+        if padding_strategy != PaddingStrategy.DO_NOT_PAD and (self.pad_token is None or self.pad_token_id < 0):
+>           raise ValueError(
+                "Asking to pad but the tokenizer does not have a padding token. "
+                "Please select a token to use as `pad_token` `(tokenizer.pad_token = tokenizer.eos_token e.g.)` "
+                "or add a new pad token via `tokenizer.add_special_tokens({'pad_token': '[PAD]'})`."
+            )
+E           ValueError: Asking to pad but the tokenizer does not have a padding token. Please select a token to use as `pad_token` `(tokenizer.pad_token = tokenizer.eos_token e.g.)` or add a new pad token via `tokenizer.add_special_tokens({'pad_token': '[PAD]'})`.
+
+../miniconda3/envs/neo/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:2959: ValueError
+----------------------------- Captured stderr call -----------------------------
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:53<00:53, 53.29s/it]Loading checkpoint shards: 100%|██████████| 2/2 [01:14<00:00, 34.58s/it]Loading checkpoint shards: 100%|██████████| 2/2 [01:14<00:00, 37.39s/it]
+=========================== short test summary info ============================
+FAILED tests/test_int8_transfer.py::test_per_token_rms_bound - AssertionError...
+FAILED tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-token]
+FAILED tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-channel]
+FAILED tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-token-per-head]
+FAILED tests/test_int8_correctness.py::test_logit_mse_fp16_vs_int8 - ValueErr...
+=================== 5 failed, 10 passed in 79.30s (0:01:19) ====================
