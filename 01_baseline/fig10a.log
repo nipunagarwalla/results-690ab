@@ -1,13 +1,13 @@
 Traceback (most recent call last):
-  File "/home/ubuntu/NEO/evaluation/reproduce-fig6c.py", line 54, in <module>
+  File "/home/ubuntu/NEO/evaluation/reproduce-fig10a.py", line 55, in <module>
     asyncio.run(main())
   File "/home/ubuntu/miniconda3/envs/neo/lib/python3.10/asyncio/runners.py", line 44, in run
     return loop.run_until_complete(main)
   File "/home/ubuntu/miniconda3/envs/neo/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
     return future.result()
-  File "/home/ubuntu/NEO/evaluation/reproduce-fig6c.py", line 50, in main
-    await one_round("ours")
-  File "/home/ubuntu/NEO/evaluation/reproduce-fig6c.py", line 32, in one_round
+  File "/home/ubuntu/NEO/evaluation/reproduce-fig10a.py", line 50, in main
+    await one_round("base")
+  File "/home/ubuntu/NEO/evaluation/reproduce-fig10a.py", line 40, in one_round
     start_server(server_name, config)
   File "/home/ubuntu/NEO/evaluation/server.py", line 83, in start_server
     server_proc = subprocess.Popen(

@@ -1,4 +1,4 @@
-=== INT8 SMOKE TEST (Llama-2-7b, int8-cpu-kv) ===
+=== BASELINE SMOKE TEST (Llama-2-7b) ===
 INFO:swiftllm.server.engine:Initializing model...
 INFO:swiftllm.server.engine:Profiling model...
 INFO:swiftllm.server.profiler:[Engine.profiler] Number of GPU blocks: 200 (1.61 GB)
@@ -6,28 +6,28 @@ INFO:swiftllm.server.profiler:[Engine.profiler] Number of CPU blocks: 512 (4.00 
 INFO:swiftllm.server.engine:Initializing block manager...
 INFO:swiftllm.server.engine:Initializing KV cache and swap...
 INFO:swiftllm.server.engine:Model initialized
-Engine creation time: 4.44 seconds
+Engine creation time: 5.93 seconds
 Prompt token length:  250
 Prefilling phase done
-Iteration   0 E2E time: 431.3081 ms
-Iteration   1 E2E time: 62.7921 ms
-Iteration   2 E2E time: 62.7636 ms
-Iteration   3 E2E time: 62.7954 ms
-Iteration   4 E2E time: 62.7110 ms
-Iteration   5 E2E time: 62.8038 ms
-Iteration   6 E2E time: 66.5183 ms
-Iteration   7 E2E time: 62.5933 ms
-Iteration   8 E2E time: 62.6480 ms
-Iteration   9 E2E time: 62.3832 ms
-Iteration  10 E2E time: 62.4296 ms
-Iteration  11 E2E time: 62.3519 ms
-Iteration  12 E2E time: 62.4313 ms
-Iteration  13 E2E time: 62.3333 ms
-Iteration  14 E2E time: 62.4304 ms
-Iteration  15 E2E time: 62.3438 ms
+Iteration   0 E2E time: 3765.8315 ms
+Iteration   1 E2E time: 62.8933 ms
+Iteration   2 E2E time: 62.7979 ms
+Iteration   3 E2E time: 62.8433 ms
+Iteration   4 E2E time: 62.6123 ms
+Iteration   5 E2E time: 62.6489 ms
+Iteration   6 E2E time: 160.2779 ms
+Iteration   7 E2E time: 62.4311 ms
+Iteration   8 E2E time: 62.4490 ms
+Iteration   9 E2E time: 62.4269 ms
+Iteration  10 E2E time: 62.4652 ms
+Iteration  11 E2E time: 62.4184 ms
+Iteration  12 E2E time: 62.7867 ms
+Iteration  13 E2E time: 62.4449 ms
+Iteration  14 E2E time: 62.4810 ms
+Iteration  15 E2E time: 62.4434 ms
 Rome had begun expanding shortly after the founding of the Roman Republic in the 6th century BC, though not outside the Italian Peninsula until the 3rd century BC. Thus, it was an "empire" (a great power) long before it had an emperor.[21] The Republic was not a nation-state in the modern sense, but a network of self-ruled towns (with varying degrees of independence from the Senate) and provinces administered by military commanders. It was governed by annually elected magistrates (Roman consuls above all) in conjunction with the Senate.[22] The 1st century BC was a time of political and military upheaval, which ultimately led to rule by emperors.[23][24][25] The consuls' military power rested in the Roman legal concept of imperium, meaning "command" (typically in a military sense).[26] Occasionally, successful consuls or generals were given the honorary title imperator (commander); this is the origin of the word emperor, since this title was always bestowed upon the emperor.
 The Roman|Empire was the post-Republican period of the ancient Roman civilization, character
 Rome had begun expanding shortly after the founding of the Roman Republic in the 6th century BC, though not outside the Italian Peninsula until the 3rd century BC. Thus, it was an "empire" (a great power) long before it had an emperor.[21] The Republic was not a nation-state in the modern sense, but a network of self-ruled towns (with varying degrees of independence from the Senate) and provinces administered by military commanders. It was governed by annually elected magistrates (Roman consuls above all) in conjunction with the Senate.[22] The 1st century BC was a time of political and military upheaval, which ultimately led to rule by emperors.[23][24][25] The consuls' military power rested in the Roman legal concept of imperium, meaning "command" (typically in a military sense).[26] Occasionally, successful consuls or generals were given the honorary title imperator (commander); this is the origin of the word emperor, since this title was always bestowed upon the emperor.
-The Roman|Empire USA turnnahsahsahsahsahsahsah
+The Roman|Empire was the post-Republican period of the ancient Roman civilization, character
 Rome had begun expanding shortly after the founding of the Roman Republic in the 6th century BC, though not outside the Italian Peninsula until the 3rd century BC. Thus, it was an "empire" (a great power) long before it had an emperor.[21] The Republic was not a nation-state in the modern sense, but a network of self-ruled towns (with varying degrees of independence from the Senate) and provinces administered by military commanders. It was governed by annually elected magistrates (Roman consuls above all) in conjunction with the Senate.[22] The 1st century BC was a time of political and military upheaval, which ultimately led to rule by emperors.[23][24][25] The consuls' military power rested in the Roman legal concept of imperium, meaning "command" (typically in a military sense).[26] Occasionally, successful consuls or generals were given the honorary title imperator (commander); this is the origin of the word emperor, since this title was always bestowed upon the emperor.
-The Roman|Empire-Nvvvvvvvvvvvvvv
+The Roman|Empire was the post-Republican period of the ancient Roman civilization, character
