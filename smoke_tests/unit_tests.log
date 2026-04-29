@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.20, pytest-9.0.3, pluggy-1.6.0 -- /home/ubuntu/miniconda3/envs/neo/bin/python3.10
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/NEO
+plugins: anyio-4.13.0
+collecting ... collected 15 items
+
+tests/test_int8_transfer.py::test_quantize_dtype_and_shape PASSED        [  6%]
+tests/test_int8_transfer.py::test_dequantize_rejects_non_int8 PASSED     [ 13%]
+tests/test_int8_transfer.py::test_quantize_rejects_non_float PASSED      [ 20%]
+tests/test_int8_transfer.py::test_roundtrip_bounded_error[per-token] PASSED [ 26%]
+tests/test_int8_transfer.py::test_roundtrip_bounded_error[per-channel] PASSED [ 33%]
+tests/test_int8_transfer.py::test_roundtrip_bounded_error[per-token-per-head] PASSED [ 40%]
+tests/test_int8_transfer.py::test_per_token_rms_bound PASSED             [ 46%]
+tests/test_int8_transfer.py::test_zero_input_roundtrips_to_zero PASSED   [ 53%]
+tests/test_int8_transfer.py::test_scale_broadcasts_cleanly PASSED        [ 60%]
+tests/test_int8_transfer.py::test_granularities_all_within_spec PASSED   [ 66%]
+tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-token] PASSED [ 73%]
+tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-channel] PASSED [ 80%]
+tests/test_int8_correctness.py::test_quantize_dequantize_tight[per-token-per-head] PASSED [ 86%]
+tests/test_int8_correctness.py::test_quantize_dequantize_zero_block PASSED [ 93%]
+tests/test_int8_correctness.py::test_logit_mse_fp16_vs_int8 PASSED       [100%]
+
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 15 passed, 2 warnings in 110.82s (0:01:50) ==================
+sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
