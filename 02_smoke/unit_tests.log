@@ -29,5 +29,5 @@ tests/test_int8_correctness.py::test_logit_mse_fp16_vs_int8 PASSED       [100%]
   <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 15 passed, 2 warnings in 6.27s ========================
+================== 15 passed, 2 warnings in 110.82s (0:01:50) ==================
 sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
